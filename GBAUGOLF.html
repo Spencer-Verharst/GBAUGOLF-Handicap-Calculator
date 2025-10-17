@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+    <meta charset="UTF-8">
+    <title>GB&UGOLF</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #85c6f2;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto; /* ⬅️ THIS centers the box horizontally and gives vertical spacing */
+            padding: 20px;
+            background-color: rgb(137, 170, 225);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form input[type="text"],
+        form input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            margin: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #name {
+                width: 300px;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome to the GoodBad&UglyGolf handicap calculator</h2>
+    <h1>Enter Golf Round</h1>
+    <form id="golfForm">
+        <label for="name">Player Name:</label>
+        <input type="text" id="name" required><br><br>
+
+        <div id="scoreInputs"></div>
+
+        <button type="submit">Submit Round</button>  
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('golfForm');
+        const scoreInputs = document.getElementById('scoreInputs');  
+
+        // Generate 18 hole input fields
+        for (let i = 1; i <= 18; i++) {
+            const input = document.createElement("input");
+            input.type = "number";
+            input.min = 1;
+            input.max = 20;
+            input.name = "hole" + i;
+            input.placeholder = "Hole " + i;
+            scoreInputs.appendChild(input);
+            if (i % 9 === 0) scoreInputs.appendChild(document.createElement("br"));
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("name").value;  
+            const scores = [];
+
+            for (let i = 1; i <= 18; i++) {
+                const value = document.querySelector(`input[name="hole${i}"]`).value; 
+                if (!value) {
+                    alert("Please enter all 18 scores.");  
+                    return;
+                }
+                scores.push(parseInt(value));
+            }
+
+            const response = await fetch('/submit_round', {  
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, scores })
+            });
+
+            const data = await response.json();
+            if (data.handicap !== undefined) {
+                document.getElementById("result").innerText =  
+                    `${data.message}. Rounds played: ${data.rounds_played}. Current handicap: ${data.handicap}`;
+            } else {
+                document.getElementById("result").innerText =
+                    `Error: ${data.error}`;
+            }
+        });
+    </script>
+</body>
+</html>
