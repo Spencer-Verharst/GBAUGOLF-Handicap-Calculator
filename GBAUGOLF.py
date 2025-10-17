@@ -12,14 +12,14 @@ def calculate_handicap(rounds):
     round_totals = [sum(r) for r in recent_rounds]
     best_rounds = sorted(round_totals)[:2]
     average = sum(best_rounds) / len(best_rounds)
-    handicap = (average - 72) * 0.96  # Assuming Course Rating = 72
+    handicap = (average - 72) * 0.96  
     return round(handicap, 1)
 
 @app.route('/submit_round', methods=['POST'])
 def submit_round():
     round_data = request.get_json()
     name = round_data.get("name")
-    golf_scores = round_data.get("scores")  # Fixed key to match frontend
+    golf_scores = round_data.get("scores")  
 
     if not name or not golf_scores or len(golf_scores) != 18:
         return jsonify({"error": "You must submit an 18-hole score."}), 400
